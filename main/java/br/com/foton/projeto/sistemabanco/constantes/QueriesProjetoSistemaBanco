@@ -1,0 +1,106 @@
+CREATE TABLE `Cliente` (
+  `id_cliente` int(11) NOT NULL AUTO_INCREMENT,
+  `titularidade` enum('Titular','Dependente') NOT NULL,
+  `id_pessoa` int(11) NOT NULL,
+  PRIMARY KEY (`id_cliente`),
+  UNIQUE KEY `id_cliente` (`id_cliente`),
+  KEY `id_pessoaFK1` (`id_pessoa`),
+  CONSTRAINT `id_pessoaFK1` FOREIGN KEY (`id_pessoa`) REFERENCES `Pessoa` (`id_pessoa`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1
+
+CREATE TABLE `ClienteConta` (
+  `id_cliente` int(11) NOT NULL,
+  `id_conta` int(11) NOT NULL,
+  `id_cliente_conta` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id_cliente_conta`),
+  UNIQUE KEY `id_cliente_conta_UNIQUE` (`id_cliente_conta`),
+  KEY `ClienteConta_FK1` (`id_cliente`),
+  KEY `ClienteConta_FK2` (`id_conta`),
+  CONSTRAINT `ClienteConta_FK1` FOREIGN KEY (`id_cliente`) REFERENCES `Cliente` (`id_cliente`),
+  CONSTRAINT `ClienteConta_FK2` FOREIGN KEY (`id_conta`) REFERENCES `Conta` (`id_conta`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+CREATE TABLE `Conta` (
+  `id_conta` int(11) NOT NULL AUTO_INCREMENT,
+  `numero` int(10) unsigned NOT NULL,
+  `agencia` int(10) unsigned NOT NULL,
+  `saldo` double unsigned NOT NULL,
+  `id_funcionario` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_conta`),
+  UNIQUE KEY `id_conta` (`id_conta`),
+  KEY `FKj8niq1cu20y7v0m2hmbeow6k0` (`id_funcionario`),
+  CONSTRAINT `id_funcionarioFK` FOREIGN KEY (`id_funcionario`) REFERENCES `Funcionario` (`id_funcionario`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1
+
+CREATE TABLE `ContaPoupancaCorrente` (
+  `id_contaPoupancaCorrente` int(11) NOT NULL AUTO_INCREMENT,
+  `tipo_conta` enum('CONTA_SALARIO','CONTA_POUPANCA_CORRENTE') NOT NULL,
+  `cheque_especial` float NOT NULL,
+  `bloqueio` enum('BLOQUEIO_TOTAL','BLOQUEIO_DEBITO','BLOQUEIO_CREDITO') DEFAULT NULL,
+  `id_conta` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_contaPoupancaCorrente`),
+  UNIQUE KEY `id_contaPoupancaCorrente` (`id_contaPoupancaCorrente`),
+  KEY `id_contaFK_idx` (`id_conta`),
+  CONSTRAINT `id_contaFK` FOREIGN KEY (`id_conta`) REFERENCES `Conta` (`id_conta`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1
+
+CREATE TABLE `ContaSalario` (
+  `id_contaSalario` int(11) NOT NULL AUTO_INCREMENT,
+  `tipo_conta` enum('CONTA_SALARIO','CONTA_POUPANCA_CORRENTE') NOT NULL,
+  `isAtivo` tinyint(1) DEFAULT NULL,
+  `id_conta` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_contaSalario`),
+  UNIQUE KEY `id_contaSalario_UNIQUE` (`id_contaSalario`),
+  KEY `id_contaSFK_idx` (`id_conta`),
+  CONSTRAINT `id_contaSFK` FOREIGN KEY (`id_conta`) REFERENCES `Conta` (`id_conta`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1
+
+CREATE TABLE `Endereco` (
+  `id_endereco` int(11) NOT NULL AUTO_INCREMENT,
+  `estado` varchar(40) NOT NULL,
+  `cidade` varchar(40) NOT NULL,
+  `cep` int(11) NOT NULL,
+  PRIMARY KEY (`id_endereco`),
+  UNIQUE KEY `id_endereco` (`id_endereco`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1
+
+CREATE TABLE `Funcionario` (
+  `id_funcionario` int(11) NOT NULL AUTO_INCREMENT,
+  `setor` varchar(30) NOT NULL,
+  `tipo_funcionario` enum('Gerente','Operador') NOT NULL,
+  `id_pessoa` int(11) NOT NULL,
+  PRIMARY KEY (`id_funcionario`),
+  UNIQUE KEY `id_funcionario` (`id_funcionario`),
+  KEY `id_pessoaFK_idx` (`id_pessoa`),
+  CONSTRAINT `id_pessoaFK` FOREIGN KEY (`id_pessoa`) REFERENCES `Pessoa` (`id_pessoa`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1
+
+CREATE TABLE `Pessoa` (
+  `id_pessoa` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(50) DEFAULT NULL,
+  `id_endereco` int(11) NOT NULL,
+  `rg` int(11) DEFAULT NULL,
+  `cpf` int(11) DEFAULT NULL,
+  `cnpj` int(11) DEFAULT NULL,
+  `tipo_pessoa` enum('Fisica','Juridica') NOT NULL,
+  PRIMARY KEY (`id_pessoa`),
+  UNIQUE KEY `id_pessoa` (`id_pessoa`),
+  KEY `id_enderecoFK` (`id_endereco`),
+  CONSTRAINT `id_enderecoFK` FOREIGN KEY (`id_endereco`) REFERENCES `Endereco` (`id_endereco`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1
+
+CREATE TABLE `Transacao` (
+  `id_transacao` int(11) NOT NULL AUTO_INCREMENT,
+  `numero_contaOrigem` int(10) unsigned NOT NULL,
+  `numero_contaDestino` int(10) unsigned NOT NULL,
+  `valor` double unsigned NOT NULL,
+  `tipo_operacao` enum('Credito','Debito','Transferencia') NOT NULL,
+  `id_contaOrigem` int(11) DEFAULT NULL,
+  `id_contaDestino` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_transacao`),
+  UNIQUE KEY `id_transacao_UNIQUE` (`id_transacao`),
+  KEY `id_contaOrigemFK_idx` (`id_contaOrigem`),
+  KEY `id_contaDestinoFK_idx` (`id_contaDestino`),
+  CONSTRAINT `id_contaDestinoFK` FOREIGN KEY (`id_contaDestino`) REFERENCES `Conta` (`id_conta`),
+  CONSTRAINT `id_contaOrigemFK` FOREIGN KEY (`id_contaOrigem`) REFERENCES `Conta` (`id_conta`)
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=latin1
